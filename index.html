@@ -455,6 +455,31 @@ button:hover {
 </div>
 
 
+<div id="easter" class=“easter" style="display:none;">
+
+<div style="font-family:DFKai-sb;">
+
+
+<font size="7">
+<h1>
+🎉恭喜你🎉發現了彩蛋🎉
+</h1>
+</font>
+
+<font size="6">
+<h2>
+ <img src="performance.jpg" alt="彩蛋照片">
+</h2>
+
+<button onclick="back()">返回選單</button>
+
+</font>
+
+</div>
+
+</div>
+
+
 <!--以下為標籤，物新增物件在這下面，文在上即可-->
 
  <footer>
@@ -525,6 +550,12 @@ function becomegoatter(){
     scrollTo(0,0);
 }
 
+function 彩蛋(){
+    document.getElementById('menu').style.display="none";
+    document.getElementById('easter').style.display="block";
+    scrollTo(0,0);
+}
+
 
 function back() {
     document.getElementById('menu').style.display="block";
@@ -538,6 +569,7 @@ function back() {
     document.getElementById('bully').style.display="none";
     document.getElementById('lazertoiet').style.display="none";
     document.getElementById('becomegoathorse').style.display="none";
+    document.getElementById('easter').style.display="none";
     scrollTo(0,0);
 
 }
