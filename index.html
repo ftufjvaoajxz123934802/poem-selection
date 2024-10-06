@@ -25,13 +25,37 @@ button{
     cursor: pointer;
     font-family:'標楷體';
     }
+button:hover {
+    background-color: #3d3d3d;
+    color: white;
+    transition-duration: 0.1s;
+    }
+ button:after {
+    content: "";
+    display: block;
+    position: absolute;
+    left: 0;
+    top:0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: all 0.5s;
+    box-shadow: 0 0 10px 40px white;
+    border-radius: 4em;
+}
+ button:active:after {
+    opacity: 1;
+    transition: 0s;
+    box-shadow: 0 0 0 0 white;
+}
+button:active {
+    top: 1px;
+}
 img{
     width="50%";
     height="50%";
 }
-button:hover {
-    background-color: #3d3d3d;
-    }
+
 .easter{
     color: #a8ffff;
     background-color:#0A1A2E;
