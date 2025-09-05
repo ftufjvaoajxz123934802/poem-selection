@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>太空防御者 - 星际射击游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: white;
+            overflow-x: hidden;
+        }
+        
+        header {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 0 0 10px #00b3ff, 0 0 20px #00b3ff;
+            color: #fff;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .stat {
+            display: flex;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.4);
+            padding: 8px 15px;
+            border-radius: 20px;
+        }
+        
+        .stat i {
+            margin-right: 8px;
+            color: gold;
+        }
+        
+        .game-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 500px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 179, 255, 0.5);
+            margin-bottom: 20px;
+        }
+        
+        #gameCanvas {
+            background: linear-gradient(180deg, #050a2e 0%, #1a1f4b 100%);
+            width: 100%;
+            height: 100%;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 800px;
+        }
+        
+        button {
+            background: linear-gradient(to bottom, #00b3ff, #0066ff);
+            border: none;
+            border-radius: 50px;
+            padding: 12px 25px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .shop-btn {
+            background: linear-gradient(to bottom, #ffce3c, #ff8c00);
+        }
+        
+        .upgrade-btn {
+            background: linear-gradient(to bottom, #8a2be2, #4b0082);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 100%);
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0, 179, 255, 0.5);
+            border: 2px solid #00b3ff;
+        }
+        
+        .modal h2 {
+            margin-bottom: 20px;
+            font-size: 28px;
+            color: #00b3ff;
+            text-shadow: 0 0 10px #00b3ff;
+        }
+        
+        .modal p {
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        
+        .shop-items {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .shop-item {
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        
+        .shop-item:hover {
+            transform: scale(1.05);
+            background-color: rgba(0, 179, 255, 0.2);
+        }
+        
+        .shop-item h3 {
+            margin-bottom: 10px;
+            color: #ffce3c;
+        }
+        
+        .shop-item p {
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .ad-container {
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 80px;
+            flex-direction: column;
+        }
+        
+        .ad-label {
+            font-size: 14px;
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+        
+        footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        
+        .instructions {
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            max-width: 800px;
+        }
+        
+        .instructions h3 {
+            color: #00b3ff;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ul {
+            list-style-position: inside;
+            text-align: left;
+        }
+        
+        .instructions li {
+            margin-bottom: 5px;
+        }
+        
+        @media (max-width: 600px) {
+            header {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .stats {
+                width: 100%;
+                justify-content: space-around;
+            }
+            
+            .controls {
+                flex-wrap: wrap;
+            }
+            
+            .shop-items {
+                grid-template-columns: 1fr;
+            }
+            
+            .game-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">太空防御者</div>
+        <div class="stats">
+            <div class="stat">
+                <i>💰</i> <span id="coins">150</span>
+            </div>
+            <div class="stat">
+                <i>⭐</i> <span id="score">0</span>
+            </div>
+            <div class="stat">
+                <i>❤️</i> <span id="lives">3</span>
+            </div>
+        </div>
+    </header>
+    
+    <div class="game-container">
+        <canvas id="gameCanvas"></canvas>
+    </div>
+    
+    <div class="controls">
+        <button id="startBtn">▶️ 开始游戏</button>
+        <button class="shop-btn" id="shopBtn">🛒 商店</button>
+        <button class="upgrade-btn" id="upgradeBtn">⚙️ 升级</button>
+    </div>
+    
+    <div class="instructions">
+        <h3>游戏说明</h3>
+        <ul>
+            <li>使用鼠标或手指移动飞船</li>
+            <li>自动射击敌人</li>
+            <li>收集金币升级飞船</li>
+            <li>避开敌人的攻击</li>
+            <li>每波敌人会越来越强</li>
+        </ul>
+    </div>
+    
+    <div class="modal" id="shopModal">
+        <div class="modal-content">
+            <h2>飞船商店</h2>
+            <p>使用金币购买强大的飞船和道具</p>
+            
+            <div class="shop-items">
+                <div class="shop-item">
+                    <h3>激光升级</h3>
+                    <p>增加射击速度</p>
+                    <button>50 💰 购买</button>
+                </div>
+                <div class="shop-item">
+                    <h3>护盾</h3>
+                    <p>额外生命值</p>
+                    <button>75 💰 购买</button>
+                </div>
+                <div class="shop-item">
+                    <h3>超级武器</h3>
+                    <p>暂时无敌</p>
+                    <button>100 💰 购买</button>
+                </div>
+                <div class="shop-item">
+                    <h3>金币加倍</h3>
+                    <p>本局金币获取加倍</p>
+                    <button>60 💰 购买</button>
+                </div>
+            </div>
+            
+            <div class="ad-container">
+                <div class="ad-label">观看广告获得免费金币</div>
+                <button id="watchAdBtn">👀 观看广告 (+25💰)</button>
+            </div>
+            
+            <button id="closeShopBtn">关闭商店</button>
+        </div>
+    </div>
+    
+    <div class="modal" id="upgradeModal">
+        <div class="modal-content">
+            <h2>飞船升级</h2>
+            <p>提升你的飞船性能</p>
+            
+            <div class="shop-items">
+                <div class="shop-item">
+                    <h3>武器升级</h3>
+                    <p>等级: <span id="weaponLevel">1</span></p>
+                    <button>100 💰 升级</button>
+                </div>
+                <div class="shop-item">
+                    <h3>速度升级</h3>
+                    <p>等级: <span id="speedLevel">1</span></p>
+                    <button>80 💰 升级</button>
+                </div>
+                <div class="shop-item">
+                    <h3>护盾升级</h3>
+                    <p>等级: <span id="shieldLevel">1</span></p>
+                    <button>120 💰 升级</button>
+                </div>
+                <div class="shop-item">
+                    <h3>金币加成</h3>
+                    <p>等级: <span id="coinLevel">1</span></p>
+                    <button>150 💰 升级</button>
+                </div>
+            </div>
+            
+            <button id="closeUpgradeBtn">关闭</button>
+        </div>
+    </div>
+    
+    <div class="modal" id="gameOverModal">
+        <div class="modal-content">
+            <h2>游戏结束</h2>
+            <p>你的分数: <span id="finalScore">0</span></p>
+            <p>获得金币: <span id="earnedCoins">0</span></p>
+            
+            <div class="ad-container">
+                <div class="ad-label">观看广告获得双倍金币</div>
+                <button id="doubleCoinsBtn">👀 观看广告 (双倍金币)</button>
+            </div>
+            
+            <button id="restartBtn">再玩一次</button>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2023 太空防御者 - 所有权利保留</p>
+    </footer>
+
+    <script>
+        // 游戏变量
+        let canvas, ctx;
+        let player;
+        let enemies = [];
+        let bullets = [];
+        let coins = 0;
+        let score = 0;
+        let lives = 3;
+        let gameRunning = false;
+        let animationId;
+        
+        // 玩家飞船类
+        class Player {
+            constructor() {
+                this.width = 50;
+                this.height = 50;
+                this.x = canvas.width / 2 - this.width / 2;
+                this.y = canvas.height - this.height - 20;
+                this.speed = 8;
+                this.color = '#00b3ff';
+                this.lastShot = 0;
+                this.shootDelay = 500;
+            }
+            
+            draw() {
+                // 绘制飞船主体
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.moveTo(this.x + this.width / 2, this.y);
+                ctx.lineTo(this.x + this.width, this.y + this.height);
+                ctx.lineTo(this.x, this.y + this.height);
+                ctx.closePath();
+                ctx.fill();
+                
+                // 绘制飞船细节
+                ctx.fillStyle = '#0066ff';
+                ctx.fillRect(this.x + this.width / 4, this.y + this.height / 2, this.width / 2, this.height / 2);
+            }
+            
+            update() {
+                // 射击逻辑
+                const now = Date.now();
+                if (now - this.lastShot > this.shootDelay) {
+                    this.shoot();
+                    this.lastShot = now;
+                }
+            }
+            
+            shoot() {
+                bullets.push({
+                    x: this.x + this.width / 2 - 2.5,
+                    y: this.y,
+                    width: 5,
+                    height: 15,
+                    speed: 10,
+                    color: '#ffce3c'
+                });
+            }
+            
+            move(direction) {
+                if (direction === 'left' && this.x > 0) {
+                    this.x -= this.speed;
+                }
+                if (direction === 'right' && this.x < canvas.width - this.width) {
+                    this.x += this.speed;
+                }
+            }
+        }
+        
+        // 敌人类
+        class Enemy {
+            constructor() {
+                this.width = 40;
+                this.height = 40;
+                this.x = Math.random() * (canvas.width - this.width);
+                this.y = -this.height;
+                this.speed = 2 + Math.random() * 3;
+                this.color = '#ff5252';
+                this.type = Math.random() > 0.8 ? 'special' : 'normal';
+                
+                if (this.type === 'special') {
+                    this.color = '#ab47bc';
+                    this.width = 50;
+                    this.height = 50;
+                }
+            }
+            
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+                
+                // 绘制敌人细节
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(this.x + this.width / 4, this.y + this.height / 4, this.width / 2, this.height / 2);
+            }
+            
+            update() {
+                this.y += this.speed;
+            }
+        }
+        
+        // 初始化游戏
+        function initGame() {
+            canvas = document.getElementById('gameCanvas');
+            ctx = canvas.getContext('2d');
+            
+            // 设置画布尺寸
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            // 初始化玩家
+            player = new Player();
+            
+            // 初始化游戏状态
+            enemies = [];
+            bullets = [];
+            score = 0;
+            lives = 3;
+            
+            // 更新UI
+            updateUI();
+        }
+        
+        // 游戏主循环
+        function gameLoop() {
+            if (!gameRunning) return;
+            
+            // 清除画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制星空背景
+            drawBackground();
+            
+            // 更新和绘制玩家
+            player.update();
+            player.draw();
+            
+            // 更新和绘制子弹
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                bullets[i].y -= bullets[i].speed;
+                ctx.fillStyle = bullets[i].color;
+                ctx.fillRect(bullets[i].x, bullets[i].y, bullets[i].width, bullets[i].height);
+                
+                // 移除超出屏幕的子弹
+                if (bullets[i].y + bullets[i].height < 0) {
+                    bullets.splice(i, 1);
+                }
+            }
+            
+            // 生成敌人
+            if (Math.random() < 0.03) {
+                enemies.push(new Enemy());
+            }
+            
+            // 更新和绘制敌人
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                enemies[i].update();
+                enemies[i].draw();
+                
+                // 检测敌人与子弹碰撞
+                for (let j = bullets.length - 1; j >= 0; j--) {
+                    if (detectCollision(bullets[j], enemies[i])) {
+                        // 增加分数
+                        score += enemies[i].type === 'special' ? 20 : 10;
+                        
+                        // 有几率掉落金币
+                        if (Math.random() < 0.3) {
+                            coins += enemies[i].type === 'special' ? 5 : 2;
+                        }
+                        
+                        // 移除子弹和敌人
+                        bullets.splice(j, 1);
+                        enemies.splice(i, 1);
+                        
+                        // 更新UI
+                        updateUI();
+                        
+                        break;
+                    }
+                }
+                
+                // 检测敌人与玩家碰撞
+                if (detectCollision(player, enemies[i])) {
+                    lives--;
+                    enemies.splice(i, 1);
+                    updateUI();
+                    
+                    if (lives <= 0) {
+                        gameOver();
+                        return;
+                    }
+                }
+                
+                // 移除超出屏幕的敌人
+                if (enemies[i].y > canvas.height) {
+                    enemies.splice(i, 1);
+                }
+            }
+            
+            // 继续游戏循环
+            animationId = requestAnimationFrame(gameLoop);
+        }
+        
+        // 绘制星空背景
+        function drawBackground() {
+            // 绘制星空
+            ctx.fillStyle = '#0a0a2a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制星星
+            for (let i = 0; i < 100; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const size = Math.random() * 2;
+                
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        // 碰撞检测
+        function detectCollision(obj1, obj2) {
+            return obj1.x < obj2.x + obj2.width &&
+                   obj1.x + obj1.width > obj2.x &&
+                   obj1.y < obj2.y + obj2.height &&
+                   obj1.y + obj1.height > obj2.y;
+        }
+        
+        // 更新UI
+        function updateUI() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('coins').textContent = coins;
+            document.getElementById('lives').textContent = lives;
+        }
+        
+        // 游戏结束
+        function gameOver() {
+            gameRunning = false;
+            cancelAnimationFrame(animationId);
+            
+            // 显示游戏结束模态框
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('earnedCoins').textContent = Math.floor(score / 10);
+            document.getElementById('gameOverModal').style.display = 'flex';
+            
+            // 奖励玩家金币
+            coins += Math.floor(score / 10);
+            updateUI();
+        }
+        
+        // 事件监听器
+        document.getElementById('startBtn').addEventListener('click', function() {
+            if (!gameRunning) {
+                gameRunning = true;
+                initGame();
+                gameLoop();
+            }
+        });
+        
+        document.getElementById('shopBtn').addEventListener('click', function() {
+            document.getElementById('shopModal').style.display = 'flex';
+        });
+        
+        document.getElementById('upgradeBtn').addEventListener('click', function() {
+            document.getElementById('upgradeModal').style.display = 'flex';
+        });
+        
+        document.getElementById('closeShopBtn').addEventListener('click', function() {
+            document.getElementById('shopModal').style.display = 'none';
+        });
+        
+        document.getElementById('closeUpgradeBtn').addEventListener('click', function() {
+            document.getElementById('upgradeModal').style.display = 'none';
+        });
+        
+        document.getElementById('restartBtn').addEventListener('click', function() {
+            document.getElementById('gameOverModal').style.display = 'none';
+            gameRunning = true;
+            initGame();
+            gameLoop();
+        });
+        
+        document.getElementById('watchAdBtn').addEventListener('click', function() {
+            // 模拟观看广告获得金币
+            coins += 25;
+            updateUI();
+            alert('广告播放中...（实际游戏中这里会显示广告）');
+        });
+        
+        document.getElementById('doubleCoinsBtn').addEventListener('click', function() {
+            // 模拟观看广告获得双倍金币
+            coins += Math.floor(score / 10);
+            updateUI();
+            document.getElementById('gameOverModal').style.display = 'none';
+            alert('广告播放中...（实际游戏中这里会显示广告）');
+        });
+        
+        // 鼠标移动控制
+        canvas.addEventListener('mousemove', function(e) {
+            if (!gameRunning) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            
+            if (x < player.width / 2) {
+                player.x = 0;
+            } else if (x > canvas.width - player.width / 2) {
+                player.x = canvas.width - player.width;
+            } else {
+                player.x = x - player.width / 2;
+            }
+        });
+        
+        // 触摸设备支持
+        canvas.addEventListener('touchmove', function(e) {
+            if (!gameRunning) return;
+            e.preventDefault();
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = e.touches[0].clientX - rect.left;
+            
+            if (x < player.width / 2) {
+                player.x = 0;
+            } else if (x > canvas.width - player.width / 2) {
+                player.x = canvas.width - player.width;
+            } else {
+                player.x = x - player.width / 2;
+            }
+        });
+        
+        // 初始化游戏
+        window.addEventListener('load', function() {
+            initGame();
+        });
+        
+        // 窗口大小调整
+        window.addEventListener('resize', function() {
+            if (gameRunning) {
+                cancelAnimationFrame(animationId);
+            }
+            initGame();
+            if (gameRunning) {
+                gameLoop();
+            }
+        });
+    </script>
+</body>
+</html>
